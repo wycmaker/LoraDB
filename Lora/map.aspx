@@ -209,7 +209,7 @@
             document.getElementById("button4").disabled = true;
         }
     </script>
-    <script async="async" defer="defer" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxEO_TB_AzCl3GXqhdJVQ41on_XvxgkS0&libraries=geometry&callback=initMap"></script>
+    <script async="async" defer="defer" src="https://maps.googleapis.com/maps/api/js?key=APIKey&libraries=geometry&callback=initMap"></script>
 </head>
 <body>
     <!-- 側欄 -->
