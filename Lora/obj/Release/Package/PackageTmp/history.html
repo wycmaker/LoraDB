@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocas-ui/2.3.3/tocas.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tocas-ui/2.3.3/tocas.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title></title>
+    <style>
+        .squeezable {
+            height: 100%;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 側欄 -->
+    <form id="form1" runat="server">
+        <div class="ts left vertical fluid inverted visible menu sidebar">
+            <!-- 搜尋欄位 -->
+            <div class="fitted item">
+                <div class="ts icon fluid basic borderless inverted input">
+                    <input type="text" placeholder="搜尋">
+                    <i class="search inverted link icon"></i>
+                </div>
+            </div>
+            <!-- / 搜尋欄位 -->
+            <!-- 老人家資料 -->
+            <div class="ts divided items">
+                <!-- 其中一位 -->
+                <div class="item">
+                    <div class="ts tiny image" style="margin-left: 15px">
+                       <a onclick="getpath(1)"><img class="ts tiny rounded image" src="images/陳佳駿.jpg"></a>
+                    </div>
+                    <div class="content">
+                        <div class="header" style="color: #ffffff">陳佳駿</div>
+                        <div class="inline meta">
+                            <span></span>
+                        </div>
+                        <div class="description" style="color: #ffffff">
+                            1997.09.30
+                        </div>
+
+                    </div>
+                </div>
+                <!-- / 其中一位 -->
+                <!-- 其中一位 -->
+                <div class="item">
+                    <div class="ts tiny image" style="margin-left: 15px">
+                        <a onclick="getpath(2)"><img class="ts tiny rounded image" src="images/陳憲億.jpg"></a>
+</div>
+                    <div class="content">
+                        <div class="header" style="color: #ffffff">陳憲億</div>
+                        <div class="inline meta">
+                            <span></span>
+                        </div>
+                        <div class="description" style="color: #ffffff">
+                            1998.03.25
+                        </div>
+
+                    </div>
+                </div>
+                <!-- / 其中一位 -->
+            </div>
+            <!-- / 老人家資料 -->
+            <!-- 底部選單 -->
+            <div class="bottom menu">
+                <!-- 登出 -->
+                <a class="item" href="Default.html">回上頁</a>
+                <!-- / 登出 -->
+            </div>
+            <!-- / 底部選單 -->
+        </div>
+        <!-- / 側欄 -->
+        <!-- 可擠壓式的推動容器 -->
+        <div class="squeezable pusher">
+            <div id="map"></div>
+            <script>
+                var datalist = [];
+                var map;
+                var flightPath;
+                var marker;
+                var marker2;
+
+                function getpath(x) {
+                    if (flightPath != undefined) {
+                        flightPath.setMap(null);
+                        marker.setMap(null);
+                        marker2.setMap(null);
+                        DLtcounter = 0;
+                    }
+                    $.ajax({
+                        url: 'map.aspx/history',
+                        type: 'POST',
+                        async: false,
+                        data: JSON.stringify({ id: x }),
+                        contentType: 'application/json; charset=UTF-8',
+                        dataType: "json", // 如果要回傳值，請設成 json
+                        error: function (xhr) { console.log(xhr) },
+                        success: function (data) {
+                            datalist = data.d;
+                            var flightPlanCoordinates = [];
+                            for (var i = datalist.length-1; i > datalist.length-150; i--) {
+                                flightPlanCoordinates.push(new google.maps.LatLng(datalist[i].lat, datalist[i].lng));
+                            }
+
+
+                            var initPos = new google.maps.LatLng(datalist[datalist.length - 150].lat, datalist[datalist.length - 150].lng);
+                            var initImg = 'https://www.google.com/maps/vt/icon/name=assets/icons/directions/directions_measle-2-medium.png?scale=1.5';
+                            marker = new google.maps.Marker({
+                                position: initPos,
+                                map: map,
+                                icon: initImg
+                            });
+
+                            marker.setMap(map);
+                            var endPos = new google.maps.LatLng(datalist[datalist.length - 1].lat, datalist[datalist.length-1].lng);
+                            marker2 = new google.maps.Marker({
+                                position: endPos,
+                                map: map,
+                            });
+
+                            marker2.setMap(map);
+                            
+
+                            flightPath = new google.maps.Polyline({
+                                path: flightPlanCoordinates,
+                                geodesic: true,
+                                strokeColor: '#3379DE',
+                                strokeOpacity: 0.7,
+                                strokeWeight: 8
+                            });
+
+                            flightPath.setMap(map);
+                        }
+                    });
+                }
+
+                function initMap() {
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 18,
+                        center: { lat: 24.448636, lng: 118.320614 },
+                    });
+                }
+
+                //$.ajax({
+                //    url: 'MAP.aspx/History',
+                //    type: 'POST',
+                //    async: false,
+                //    data: JSON.stringify({ id: 2 }),
+                //    contentType: 'application/json; charset=UTF-8',
+                //    dataType: "json", // 如果要回傳值，請設成 json
+                //    error: function (xhr) { console.log(xhr) },
+                //    success: function (data) {
+                //        datalist = data.d;
+                //        console.log(datalist)
+                //        var flightPlanCoordinates = [];
+                //        for (var i = 0; i < datalist.length; i++) {
+                //            flightPlanCoordinates.push(new google.maps.LatLng(datalist[i].lat, datalist[i].lng));
+                //        }
+                //        console.log(flightPlanCoordinates)
+
+                //        var flightPath = new google.maps.Polyline({
+                //            path: flightPlanCoordinates,
+                //            geodesic: true,
+                //            strokeColor: '#FF0000',
+                //            strokeOpacity: 0.7,
+                //            strokeWeight: 4
+                //        });
+
+                //        flightPath.setMap(map);
+                //    }
+                //});
+
+            </script>
+            <script async defer
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxEO_TB_AzCl3GXqhdJVQ41on_XvxgkS0&callback=initMap">
+            </script>
+        </div>
+        <!-- / 可擠壓式的推動容器 -->
+</body>
+</html>
